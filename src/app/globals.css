@@ -1,0 +1,1019 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   1. Runtime tokens
+   Values that change with color scheme or viewport. Everything else reads
+   these, so a theme or density change only needs to happen here.
+   ========================================================================== */
+
+:root {
+  color-scheme: light dark;
+}
+
+/* Force a scheme on any subtree with .theme-light or .theme-dark, e.g. a dark
+   band or text over a photo. Must come after :root so the scheme wins there. */
+.theme-light {
+  color-scheme: light;
+}
+
+.theme-dark {
+  color-scheme: dark;
+}
+
+/* Color: light-dark(light value, dark value). The theme classes must stay in
+   this selector: the build compiles light-dark() to variables that resolve
+   where they are declared, so each scope has to declare its own copy. */
+:root,
+.theme-light,
+.theme-dark {
+  --background: light-dark(#ffffff, #0b0b0b);
+  --surface: light-dark(#f6f6f5, #161616);
+  --surface-strong: light-dark(#e9e9e7, #262626);
+  --foreground: light-dark(#111111, #f5f5f5);
+  --muted: light-dark(#595959, #adadad);
+  --subtle: light-dark(#6e6e6e, #929292);
+  --border: light-dark(#e4e4e2, #2b2b2b);
+  --border-strong: light-dark(#111111, #f5f5f5);
+  --primary: light-dark(#111111, #f5f5f5);
+  --primary-hover: light-dark(#3a3a3a, #cfcfcf);
+  --primary-foreground: light-dark(#ffffff, #111111);
+  --error: light-dark(#a4161a, #ff8a80);
+  --success: light-dark(#1f6b3f, #7ed3a0);
+  --warning: light-dark(#8a5300, #e6b766);
+  --scrim: rgb(0 0 0 / 0.35);
+}
+
+:root {
+  /* Fluid spacing: rem + vw keeps these responsive and zoom-safe */
+  --gutter: clamp(1rem, 0.5rem + 2.5vw, 3rem);
+  --section-y: clamp(3rem, 1.75rem + 6vw, 8rem);
+  --section-y-tight: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+  --grid-gap: clamp(0.25rem, 0.1rem + 0.75vw, 1rem);
+  --grid-row-gap: clamp(2rem, 1.5rem + 2.5vw, 4rem);
+  --header-height: 3.5rem;
+
+  /* Motion */
+  --motion-fast: 150ms;
+  --motion-base: 300ms;
+  --motion-slow: 600ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@media (width >= 64rem) {
+  :root {
+    --header-height: 4.5rem;
+  }
+}
+
+/* ==========================================================================
+   2. Tailwind theme
+   Defaults are cleared where the system is deliberately strict, so off-system
+   classes such as bg-zinc-100, text-3xl, rounded-lg and shadow-md do nothing.
+   ========================================================================== */
+
+@theme {
+  --color-*: initial;
+  --text-*: initial;
+  --radius-*: initial;
+  --shadow-*: initial;
+
+  --color-white: #ffffff;
+  --color-black: #000000;
+
+  /* Type scale: size, line height, tracking travel together */
+  --text-caption: 0.75rem;
+  --text-caption--line-height: 1.4;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.5;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-title: 1.25rem;
+  --text-title--line-height: 1.3;
+  --text-heading: clamp(1.5rem, 1.3rem + 1vw, 2.25rem);
+  --text-heading--line-height: 1.2;
+  --text-headline: clamp(2rem, 1.6rem + 2vw, 3.5rem);
+  --text-headline--line-height: 1.1;
+  --text-headline--letter-spacing: -0.01em;
+  --text-display: clamp(2.75rem, 1.9rem + 4.25vw, 6rem);
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -0.02em;
+
+  /* Layout */
+  --breakpoint-3xl: 120rem;
+  --container-page: 120rem;
+  --container-prose: 40rem;
+
+  /* Image ratios */
+  --aspect-product: 3 / 4;
+  --aspect-editorial: 4 / 5;
+  --aspect-banner: 21 / 9;
+}
+
+/* "inline" so these resolve where used, which lets .theme-* scopes work. */
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-strong: var(--surface-strong);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-subtle: var(--subtle);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-error: var(--error);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-scrim: var(--scrim);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-newsreader), ui-serif, Georgia, serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  --spacing-gutter: var(--gutter);
+  --spacing-section: var(--section-y);
+  --spacing-section-tight: var(--section-y-tight);
+  --spacing-grid: var(--grid-gap);
+  --spacing-header: var(--header-height);
+}
+
+/* ==========================================================================
+   3. Base
+   ========================================================================== */
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    /* A bare `border` class is always the quiet hairline. */
+    border-color: var(--border);
+  }
+
+  html {
+    scroll-padding-top: var(--header-height);
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Stop the page scrolling behind an open modal dialog. */
+  html:has(dialog[open]) {
+    overflow: hidden;
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+  }
+
+  /* In a layer, so a component such as .hero can set its own background. */
+  .theme-light,
+  .theme-dark {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+    font-weight: 400;
+    text-wrap: balance;
+  }
+
+  h1 {
+    font-size: var(--text-headline);
+    line-height: var(--text-headline--line-height);
+    letter-spacing: var(--text-headline--letter-spacing);
+  }
+
+  h2 {
+    font-size: var(--text-heading);
+    line-height: var(--text-heading--line-height);
+  }
+
+  h3 {
+    font-size: var(--text-title);
+    line-height: var(--text-title--line-height);
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--foreground);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--foreground);
+    color: var(--background);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ==========================================================================
+   4. Typography roles
+   Utilities rather than components, so variants work: md:type-headline
+   ========================================================================== */
+
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: 400;
+  line-height: var(--text-display--line-height);
+  letter-spacing: var(--text-display--letter-spacing);
+  text-wrap: balance;
+}
+
+@utility type-headline {
+  font-family: var(--font-display);
+  font-size: var(--text-headline);
+  font-weight: 400;
+  line-height: var(--text-headline--line-height);
+  letter-spacing: var(--text-headline--letter-spacing);
+  text-wrap: balance;
+}
+
+@utility type-heading {
+  font-family: var(--font-display);
+  font-size: var(--text-heading);
+  font-weight: 400;
+  line-height: var(--text-heading--line-height);
+  text-wrap: balance;
+}
+
+@utility type-title {
+  font-family: var(--font-sans);
+  font-size: var(--text-title);
+  font-weight: 400;
+  line-height: var(--text-title--line-height);
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+}
+
+@utility type-body-sm {
+  font-family: var(--font-sans);
+  font-size: var(--text-body-sm);
+  line-height: var(--text-body-sm--line-height);
+}
+
+@utility type-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-caption);
+  line-height: var(--text-caption--line-height);
+  color: var(--muted);
+}
+
+/* Navigation, buttons, eyebrows. Keep it short: caps slow down long text. */
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  font-weight: 500;
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   5. Components
+   In the components layer, so a Tailwind utility can override any of them.
+   ========================================================================== */
+
+@layer components {
+  /* Layout ---------------------------------------------------------------- */
+
+  /* Sections are full-bleed by default. Wrap content to get the gutter. */
+  .page-container {
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+    padding-inline: var(--gutter);
+  }
+
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  .section-tight {
+    padding-block: var(--section-y-tight);
+  }
+
+  /* 4 columns on phones, 12 from lg. Children choose: col-span-4 lg:col-span-6 */
+  .grid-layout {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+
+    @variant lg {
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+    }
+  }
+
+  /* Stacked, then two equal halves: image beside text, gallery beside details */
+  .split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--grid-gap);
+
+    @variant lg {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  /* Horizontal swipe row. Item width comes from --scroller-item. */
+  .scroller {
+    --scroller-item: 70%;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: var(--scroller-item);
+    gap: var(--grid-gap);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    @variant md {
+      --scroller-item: 40%;
+    }
+
+    @variant xl {
+      --scroller-item: 24%;
+    }
+
+    & > * {
+      scroll-snap-align: start;
+    }
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  /* Buttons --------------------------------------------------------------- */
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 3rem;
+    padding-inline: 2rem;
+    border: 1px solid transparent;
+    border-radius: 0;
+    font-family: var(--font-sans);
+    font-size: var(--text-label);
+    font-weight: 500;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-align: center;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color var(--motion-fast) var(--ease-standard),
+      border-color var(--motion-fast) var(--ease-standard),
+      color var(--motion-fast) var(--ease-standard);
+
+    &:disabled,
+    &[aria-disabled="true"] {
+      background-color: var(--surface-strong);
+      border-color: var(--surface-strong);
+      color: var(--subtle);
+      cursor: not-allowed;
+    }
+  }
+
+  .btn-primary {
+    background-color: var(--primary);
+    color: var(--primary-foreground);
+
+    @variant hover {
+      &:not(:disabled, [aria-disabled="true"]) {
+        background-color: var(--primary-hover);
+      }
+    }
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    border-color: var(--border-strong);
+    color: var(--foreground);
+
+    @variant hover {
+      &:not(:disabled, [aria-disabled="true"]) {
+        background-color: var(--primary);
+        color: var(--primary-foreground);
+      }
+    }
+  }
+
+  .btn-ghost {
+    background-color: transparent;
+    color: var(--foreground);
+
+    @variant hover {
+      &:not(:disabled, [aria-disabled="true"]) {
+        background-color: var(--surface);
+      }
+    }
+  }
+
+  .btn-sm {
+    min-height: 2.75rem;
+    padding-inline: 1.25rem;
+  }
+
+  .btn-lg {
+    min-height: 3.5rem;
+    padding-inline: 2.5rem;
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  .btn-icon {
+    width: 2.75rem;
+    min-height: 2.75rem;
+    padding-inline: 0;
+  }
+
+  /* Links ----------------------------------------------------------------- */
+
+  /* Inline text links stay underlined, so they are never color-only. */
+  .link {
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
+    transition: color var(--motion-fast) var(--ease-standard);
+
+    @variant hover {
+      color: var(--muted);
+    }
+  }
+
+  /* Navigation and footer links: the underline appears on hover or when current. */
+  .nav-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--text-label);
+    font-weight: 500;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+    text-decoration-line: underline;
+    text-decoration-color: transparent;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.5em;
+    transition: text-decoration-color var(--motion-fast) var(--ease-standard);
+
+    @variant hover {
+      text-decoration-color: currentColor;
+    }
+
+    &[aria-current="page"] {
+      text-decoration-color: currentColor;
+    }
+  }
+
+  /* Forms ----------------------------------------------------------------- */
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .field-label {
+    font-size: var(--text-label);
+    font-weight: 500;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  .field-hint {
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--muted);
+  }
+
+  .field-error {
+    font-size: var(--text-caption);
+    line-height: var(--text-caption--line-height);
+    color: var(--error);
+  }
+
+  /* 1rem text stops iOS Safari zooming the page when a field gets focus. */
+  .input {
+    width: 100%;
+    min-height: 3rem;
+    padding: 0.625rem 0.875rem;
+    border: 1px solid var(--subtle);
+    border-radius: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    transition: border-color var(--motion-fast) var(--ease-standard);
+
+    &::placeholder {
+      color: var(--subtle);
+    }
+
+    @variant hover {
+      border-color: var(--border-strong);
+    }
+
+    &:focus-visible {
+      border-color: var(--border-strong);
+      outline-offset: 0;
+    }
+
+    &[aria-invalid="true"] {
+      border-color: var(--error);
+    }
+
+    &:disabled {
+      background-color: var(--surface);
+      border-color: var(--border);
+      color: var(--subtle);
+      cursor: not-allowed;
+    }
+  }
+
+  /* Small labels ---------------------------------------------------------- */
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    min-height: 1.5rem;
+    padding-inline: 0.5rem;
+    border: 1px solid var(--border-strong);
+    font-size: var(--text-label);
+    font-weight: 500;
+    line-height: var(--text-label--line-height);
+    letter-spacing: var(--text-label--letter-spacing);
+    text-transform: uppercase;
+  }
+
+  /* Site header ----------------------------------------------------------- */
+
+  /* Three columns keep the center slot truly centered on every width. */
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 1rem;
+    min-height: var(--header-height);
+    padding-inline: var(--gutter);
+    border-bottom: 1px solid var(--border);
+    background-color: var(--background);
+  }
+
+  .site-header-start {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    justify-self: start;
+  }
+
+  .site-header-end {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    justify-self: end;
+  }
+
+  /* Site footer ----------------------------------------------------------- */
+
+  /* Sentence case and 44px tall, for long lists that stay easy to scan and tap. */
+  .footer-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+    color: var(--muted);
+    transition: color var(--motion-fast) var(--ease-standard);
+
+    @variant hover {
+      color: var(--foreground);
+    }
+
+    @variant lg {
+      min-height: 2rem;
+    }
+  }
+
+  .site-footer {
+    padding-block: var(--section-y-tight);
+    border-top: 1px solid var(--border);
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 2rem;
+
+    @variant sm {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @variant lg {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* Hero ------------------------------------------------------------------ */
+
+  /* Photo fills the first screen, with content pinned to the bottom edge.
+     Children: .hero-media, then .hero-content. Add .theme-dark to .hero itself
+     over dark photos, not to .hero-content, which would cover the photo. */
+  .hero {
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    min-height: calc(100svh - var(--header-height));
+    overflow: hidden;
+    background-color: var(--surface);
+  }
+
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: var(--section-y-tight) var(--gutter);
+  }
+
+  /* Darkens the lower part of a photo so overlaid text stays readable. The hero
+     carries more text, over photos that may be bright, so it reaches higher. */
+  .hero::after {
+    background-image: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.85),
+      rgb(0 0 0 / 0.68) 55%,
+      transparent 90%
+    );
+  }
+
+  .editorial-tile::after,
+  .scrim-bottom {
+    background-image: linear-gradient(
+      to top,
+      rgb(0 0 0 / 0.72),
+      rgb(0 0 0 / 0.28) 50%,
+      transparent
+    );
+  }
+
+  .hero::after,
+  .editorial-tile::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  /* Editorial tile ---------------------------------------------------------- */
+
+  /* Linked photo with a caption on top. Add .theme-dark for light caption text. */
+  .editorial-tile {
+    position: relative;
+    display: block;
+    aspect-ratio: var(--aspect-editorial);
+    overflow: hidden;
+    background-color: var(--surface);
+
+    & > img {
+      object-fit: cover;
+      transition: transform var(--motion-slow) var(--ease-standard);
+    }
+
+    @variant hover {
+      & > img {
+        transform: scale(1.03);
+      }
+    }
+  }
+
+  .editorial-tile-caption {
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 1rem;
+
+    @variant md {
+      padding: 1.5rem;
+    }
+  }
+
+  /* Drawer ------------------------------------------------------------------ */
+
+  /* Native <dialog> opened with showModal(), which handles focus and Escape. */
+  .drawer {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(100%, 26rem);
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    background-color: var(--background);
+    color: var(--foreground);
+
+    &::backdrop {
+      background-color: var(--scrim);
+    }
+  }
+
+  .drawer-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-height: 100%;
+    padding: 0.5rem var(--gutter) 2rem;
+  }
+
+  /* Product grid ---------------------------------------------------------- */
+
+  /* 2 columns on phones, 3 from md, 4 from xl. */
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: var(--grid-gap);
+    row-gap: var(--grid-row-gap);
+
+    @variant md {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @variant xl {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  /* An editorial image placed among the tiles: full width on phones, 2x2 above. */
+  .product-grid-feature {
+    position: relative;
+    grid-column: span 2;
+    overflow: hidden;
+    background-color: var(--surface);
+
+    @variant md {
+      grid-row: span 2;
+    }
+
+    & > img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  .product-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+
+  .product-card-media {
+    position: relative;
+    aspect-ratio: var(--aspect-product);
+    overflow: hidden;
+    background-color: var(--surface);
+
+    & > img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: opacity var(--motion-base) var(--ease-standard);
+    }
+
+    /* Optional second image: only revealed where hovering exists. */
+    & > img + img {
+      opacity: 0;
+    }
+  }
+
+  /* display: none also stops touch devices downloading a lazy image they
+     would never show. */
+  @media (hover: none) {
+    .product-card-media > img + img {
+      display: none;
+    }
+  }
+
+  @media (hover: hover) {
+    .product-card:hover .product-card-media > img + img,
+    .product-card:focus-within .product-card-media > img + img {
+      opacity: 1;
+    }
+  }
+
+  .product-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-inline: 0.5rem;
+
+    @variant xl {
+      padding-inline: 0;
+    }
+  }
+
+  .product-card-name {
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+  }
+
+  .product-card-price {
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+    color: var(--muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Product page ---------------------------------------------------------- */
+
+  /* Stacked and edge to edge, then gallery beside a sticky summary from lg. */
+  .product-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    width: 100%;
+    max-width: var(--container-page);
+    margin-inline: auto;
+
+    @variant lg {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      column-gap: var(--grid-row-gap);
+      padding-inline: var(--gutter);
+      padding-block-start: var(--grid-gap);
+    }
+  }
+
+  /* Use with .scroller: a swipe row with a peek of the next image, then from lg
+     a large lead image above a row of two close-ups. */
+  .product-gallery {
+    --scroller-item: 88%;
+
+    @variant md {
+      --scroller-item: 60%;
+    }
+
+    @variant lg {
+      grid-auto-flow: row;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      overflow-x: visible;
+      scroll-snap-type: none;
+
+      & > :first-child {
+        grid-column: 1 / -1;
+      }
+    }
+  }
+
+  .product-gallery-item {
+    position: relative;
+    aspect-ratio: var(--aspect-product);
+    overflow: hidden;
+    background-color: var(--surface);
+
+    & > img {
+      object-fit: cover;
+    }
+  }
+
+  .product-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+    padding: var(--section-y-tight) var(--gutter) 0;
+
+    @variant lg {
+      position: sticky;
+      top: calc(var(--header-height) + var(--grid-gap));
+      align-self: start;
+      padding: 0;
+    }
+  }
+
+  /* The label carries the meaning. The dot and color only reinforce it. */
+  .stock-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+
+    &::before {
+      content: "";
+      width: 0.5rem;
+      height: 0.5rem;
+      border-radius: 50%;
+      background-color: currentColor;
+    }
+
+    &[data-state="in-stock"] {
+      color: var(--success);
+    }
+
+    &[data-state="low-stock"] {
+      color: var(--warning);
+    }
+
+    &[data-state="sold-out"] {
+      color: var(--muted);
+    }
+  }
+
+  /* Disclosure ------------------------------------------------------------ */
+
+  /* Native <details>. Stack several for a hairline-separated list. */
+  .disclosure {
+    border-top: 1px solid var(--border);
+
+    &:last-child {
+      border-bottom: 1px solid var(--border);
+    }
+
+    & > summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      min-height: 3rem;
+      font-size: var(--text-label);
+      font-weight: 500;
+      line-height: var(--text-label--line-height);
+      letter-spacing: var(--text-label--letter-spacing);
+      text-transform: uppercase;
+      cursor: pointer;
+      list-style: none;
+
+      &::-webkit-details-marker {
+        display: none;
+      }
+
+      &::after {
+        content: "+";
+        font-size: var(--text-body);
+      }
+    }
+
+    &[open] > summary::after {
+      content: "\2212";
+    }
+  }
+
+  .disclosure-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding-block-end: 1.5rem;
+    font-size: var(--text-body-sm);
+    line-height: var(--text-body-sm--line-height);
+    color: var(--muted);
+  }
+}
